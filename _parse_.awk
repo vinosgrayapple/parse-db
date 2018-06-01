@@ -32,7 +32,8 @@ if (type == "КОД_МИТНОГО_РЕЖИМУ") {#        2015 ГОД
         QUANTITY = $22;
         FULL_DATE = $6;
     } else if (type == "ТИП_МД") {#        2017 ГОД
-        IMEXP = $2;
+        split($2, imp, "/");
+        IMEXP = imp[1];
         INFO = $17;
         UKTZED = $16;
         COUNTRY_TRADE = $20;
