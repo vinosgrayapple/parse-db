@@ -1,4 +1,4 @@
-function printLine(TYPE){print "\""IMEXP FS INFO FS TYPE FS UKTZED FS COUNTRY_TRADE FS COUNTRY_OF_ORIGIN FS QUANTITY FS YEAR"\"";}
+function printLine(TYPE){print "\""IMEXP FS INFO FS TYPE FS UKTZED FS COUNTRY_TRADE FS COUNTRY_OF_ORIGIN FS YEAR FS EXPORTER FS IMPORTER FS NETTO_KG FS BRUTTO_KG FS QUANTITY FS UNIT FS FACTOR_PRICE FS CUSTOMS_VALUE"\"";}
 function ltrim(s) { sub(/^[ \t\r\n]+/, "", s); return s }
 function rtrim(s) { sub(/[ \t\r\n]+$/, "", s); return s }
 function trim(s) { return rtrim(ltrim(s)); }
@@ -23,6 +23,14 @@ if (type == "КОД_МИТНОГО_РЕЖИМУ") {#        2015 ГОД
         COUNTRY_OF_ORIGIN = $29;
         QUANTITY = $20;
         FULL_DATE = $5;
+        EXPORTER=$7;
+        IMPORTER=$10;# new 01/06/2018
+        NETTO_KG=$18;
+        BRUTTO_KG=$19;
+        UNIT=$21;
+        FACTOR_PRICE=$22;
+        CUSTOMS_VALUE=$23;
+        
     } else if (type == "ТИП_ВМД_НАПРАВЛЕНИЯ") {#        2016 ГОД
         IMEXP = $2;
         INFO = $19;
@@ -31,6 +39,13 @@ if (type == "КОД_МИТНОГО_РЕЖИМУ") {#        2015 ГОД
         COUNTRY_OF_ORIGIN = $36;
         QUANTITY = $22;
         FULL_DATE = $6;
+        EXPORTER=$8;# new 01/06/2018
+        IMPORTER=$11;
+        NETTO_KG=$20;
+        BRUTTO_KG=$21;
+        UNIT=$23;
+        FACTOR_PRICE=$24;
+        CUSTOMS_VALUE=$25;
     } else if (type == "ТИП_МД") {#        2017 ГОД
         split($2, imp, "/");
         IMEXP = imp[1];
@@ -40,6 +55,13 @@ if (type == "КОД_МИТНОГО_РЕЖИМУ") {#        2015 ГОД
         COUNTRY_OF_ORIGIN = $20;
         QUANTITY = $25;
         FULL_DATE = $15;
+        EXPORTER=$4;# new 01/06/2018
+        IMPORTER=$7;
+        NETTO_KG=$24;
+        BRUTTO_KG=$23;
+        UNIT=$26;
+        FACTOR_PRICE=$41;
+        CUSTOMS_VALUE=$29;
     }
 }
 ##########################################################
