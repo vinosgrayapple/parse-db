@@ -1,7 +1,4 @@
-function printLine(TYPE) {
-  print "\""
-  IMEXP FS INFO FS TYPE FS UKTZED FS COUNTRY_TRADE FS COUNTRY_OF_ORIGIN FS YEAR FS MONTH FS EXPORTER FS IMPORTER FS NETTO_KG FS BRUTTO_KG FS QUANTITY FS TM FS UNIT FS FACTOR_PRICE FS PRODUCER FS PDO_COUNTRY FS CUSTOMS_VALUE "\"";
-}
+function printLine(TYPE) {  print "\"" IMEXP FS INFO FS TYPE FS UKTZED FS COUNTRY_TRADE FS COUNTRY_OF_ORIGIN FS YEAR FS MONTH FS EXPORTER FS IMPORTER FS NETTO_KG FS BRUTTO_KG FS QUANTITY FS TM FS UNIT FS FACTOR_PRICE FS PRODUCER FS PDO_COUNTRY FS CUSTOMS_VALUE "\"";}
 
 function ltrim(s) {  sub(/^[ \t\r\n]+/, "", s);  return s}
 
@@ -328,8 +325,7 @@ BEGIN {
 
 {
 
-  if (type == "КОД_МИТНОГО_РЕЖИМУ") {#
-    2015 ГОД
+  if (type == "КОД_МИТНОГО_РЕЖИМУ") {#     2015 ГОД
     IMEXP = $1;
     INFO = $17;
     UKTZED = $16;
@@ -338,16 +334,14 @@ BEGIN {
     QUANTITY = $20;
     FULL_DATE = $5;
     EXPORTER = $7;
-    IMPORTER = $10;#
-    new 01 / 06 / 2018
+    IMPORTER = $10;#     new 01 / 06 / 2018
     NETTO_KG = $18;
     BRUTTO_KG = $19;
     UNIT = $21;
     FACTOR_PRICE = $22;
     CUSTOMS_VALUE = $23;
 
-  } else if (type == "ТИП_ВМД_НАПРАВЛЕНИЯ") {#
-    2016 ГОД
+  } else if (type == "ТИП_ВМД_НАПРАВЛЕНИЯ") {#    2016 ГОД
     IMEXP = $2;
     INFO = $19;
     UKTZED = $18;
@@ -355,16 +349,14 @@ BEGIN {
     COUNTRY_OF_ORIGIN = $36;
     QUANTITY = $22;
     FULL_DATE = $6;
-    EXPORTER = $8;#
-    new 01 / 06 / 2018
+    EXPORTER = $8;#    new 01 / 06 / 2018
     IMPORTER = $11;
     NETTO_KG = $20;
     BRUTTO_KG = $21;
     UNIT = $23;
     FACTOR_PRICE = $24;
     CUSTOMS_VALUE = $25;
-  } else if (type == "ТИП_МД") {#
-    2017 ГОД
+  } else if (type == "ТИП_МД") {#    2017 ГОД
     split($2, imp, "/");
     IMEXP = imp[1];
     INFO = $17;
@@ -382,11 +374,15 @@ BEGIN {
     FACTOR_PRICE = $41;
     CUSTOMS_VALUE = $29;
   }
-}#################################################################################################################### {
+}
+###########################################################
+######################################################### 
+{
   split(FULL_DATE, a, ".");
   YEAR = a[3];
-  MONTH = a[2];##############
-  PRODUCER##########################################################################################
+  MONTH = a[2];
+  # ##############  PRODUCER  ############################
+  # ######################################################
 
   match(INFO, /(Вири?р?об\ ?н?и\ ?(к|цтво)|Вир\-к|Розлито в)[\x3A\-\x3C ]*([A-Za-z][0-9A-Za-z\x27\x20\x2D\x2E\x26\x2F\x60]+)/, eng);
   match(INFO, /(Вири?р?об\ ?н?и\ ?(к|цтво)|Вир\-к|Розлито в)[\x3A\-\x3C ]*([А-ЯЇІЄҐа-яіїґ\.]+( [А-ЯЇІЄҐа-яіїґ]+)?)/, ukr);
@@ -400,11 +396,11 @@ BEGIN {
   }
   PRODUCER = trim(str);
 
-  ##############
-  TM##########################################################################################
+  # ##############  TM  ###################################
+  # #######################################################
 
-  match($0, /((То?ро?г?[оі]?вельн[аі]|Торг(\.|ова))\s*марк?[аи](\/Виробник)?|\b[ТT][МM]|Торговельною маркою)[\x3A\-\x3C ]*([A-Za-z][0-9A-Za-z\x27\x20\x2D\x2E\x26\x2F\x60]+)/, eng);
-  match($0, /((То?ро?г?[оі]?вельн[аі]|Торг(\.|ова))\s*марк?[аи](\/Виробник)?|\b[ТT][МM]|Торговельною маркою)[\x3A\-\x3C ]*([^ \:\-][А-ЯЇІЄҐа-яіїґ]+( [А-ЯЇІЄҐа-яіїґ]+)?)/, ukr);
+  match(INFO, /((То?ро?г?[оі]?вельн[аі]|Торг(\.|ова))\s*марк?[аи](\/Виробник)?|\b[ТT][МM]|Торговельною маркою)[\x3A\-\x3C ]*([A-Za-z][0-9A-Za-z\x27\x20\x2D\x2E\x26\x2F\x60]+)/, eng);
+  match(INFO, /((То?ро?г?[оі]?вельн[аі]|Торг(\.|ова))\s*марк?[аи](\/Виробник)?|\b[ТT][МM]|Торговельною маркою)[\x3A\-\x3C ]*([^ \:\-][А-ЯЇІЄҐа-яіїґ]+( [А-ЯЇІЄҐа-яіїґ]+)?)/, ukr);
 
   indx = 5;
   if (eng[indx] !~/^[\s\-\: ]*$/) {
@@ -419,13 +415,37 @@ BEGIN {
   gsub(/(Виробник|Акцизні|Країна|на$)/, "", str);
 
 
-  TM = trim(str);#############
-  COUNTRY_OF_ORIGIN#################################################################################
-  if (PDO[UKTZED] != null) {#
-    PDO_COUNTRY = PDO[UKTZED];#
-  } else {#
-    PDO_COUNTRY = "";#
+  TM = trim(str);
+##################  PDO_COUNTRY  ###############################
+################################################
+  # pdo_temp=PDO[UKTZED]
+  # print pdo_temp;
+  # if (pdo_temp=="") {
+  #   print "NOT"
+  # } else {
+  #   print "есть"
+  # }
+  # print "test";
+  PDO_COUNTRY = PDO[UKTZED];
+  if (PDO[UKTZED] != "") {
+    PDO_COUNTRY = PDO[UKTZED];
+  } else {
+  match(INFO,/(PDO\ |регіоні|вироблені у регіоні|вироблене в регіоні|регіонах|зонах|регіону|зоні|зона|регіон|PDO\(|PDO\)\,|вироблене\ *в|PDO\)\,\ без\ додавання\ спирту\:.*\/)[\x3A\-\x3C ]*([A-Za-z][0-9A-Za-z\x27\x20\x2D\x2E\x26\x2F\x60]+)/,eng);
+  match(INFO,/(PDO\ |регіоні|вироблені у регіоні|вироблене в регіоні|регіонах|зонах|регіону|зоні|зона|регіон|PDO\(|PDO\)\,|вироблене\ *в)[\x3A\-\x3C ]*([А-ЯЇІЄҐа-яіїґ\.\-\x27]+( [А-ЯЇІЄҐа-яіїґ\x27]+)?)/,ukr);
+  indx = 2;
+  if (eng[indx] !~ /^[\s\-\: ]*$/) {
+    str=eng[indx];
+  } else if (ukr[indx] !~ /^[\s\-\: ]*$/) {
+    str=ukr[indx];
+  } else {
+    str="отстутствует";
   }
+    PDO_COUNTRY = str;
+  }
+
+
+  #############  COUNTRY_OF_ORIGIN ##################
+  ###############################################################
 
   if (COUNTRY_OF_ORIGIN == "") {
     if (match(INFO, /кра[їіъ]на\s+(походження|вир?.?об?ни(к|цтв)а?)(\s*)?([-:()])?(\s*)?(([A-Z][A-Z])|[а-щА-ЩЬьЮюЯяЇїІіЄєҐґ]+?|[0-9][0-9])/, m)) {
