@@ -1,4 +1,4 @@
-function printLine(TYPES){print "\""IMEXP FS INFO FS PDO_COUNTRY FS TYPES FS UKTZED FS COUNTRY_TRADE FS COUNTRY_OF_ORIGIN FS YEAR FS MONTH FS EXPORTER FS IMPORTER FS NETTO_KG FS BRUTTO_KG FS QUANTITY FS UNIT FS TM FS FACTOR_PRICE FS PRODUCER FS CUSTOMS_VALUE"\"" >> output}
+function printLine(TYPES){print "\""IMEXP FS INFO FS PDO_COUNTRY FS TYPES FS UKTZED FS COUNTRY_TRADE FS COUNTRY_OF_ORIGIN FS YEAR FS MONTH FS EXPORTER FS IMPORTER FS NETTO_KG FS BRUTTO_KG FS QUANTITY FS UNIT FS USD FS TM FS FACTOR_PRICE FS PRODUCER FS CUSTOMS_VALUE"\"" >> output}
 function ltrim(s){sub(/^[ \t\r\n\.]+/, "",s);return s}
 function rtrim(s){sub(/[ \t\r\n\.)]+$/, "",s);return s}
 function trim(s){return rtrim(ltrim(s))}
@@ -334,6 +334,7 @@ BEGIN {
     UNIT = $21;
     FACTOR_PRICE = $22;
     CUSTOMS_VALUE = $23;
+    CURRENCY=$26;
     
 
   } else if (type == "ТИП_ВМД_НАПРАВЛЕНИЯ") {#    2016 ГОД
@@ -351,6 +352,7 @@ BEGIN {
     UNIT = $23;
     FACTOR_PRICE = $24;
     CUSTOMS_VALUE = $25;
+    CURRENCY=$29;
   } else if (type == "ТИП_МД") {#    2017 ГОД
     split($2, imp, "/");
     IMEXP = imp[1];
@@ -541,7 +543,24 @@ BEGIN {
   } else if (PRODUCER~/а/) {
      PRODUCER=EXPORTER;
   }
-
+   #########################
+   gsub(/,/,".",CURRENCY)
+   gsub(/,/,".",QUANTITY)
+   #    USD
+   #########################
+    print "QUANTITY:" QUANTITY;
+    print "CURRENCY:" CURRENCY;
+   if (+CURRENCY != 0 && +QUANTITY != 0) {
+      USD=CUSTOMS_VALUE/CURRENCY/QUANTITY;
+   } else {
+     USD="null";
+   }
+    gsub(/\./,",",CURRENCY);
+    gsub(/\./,",",QUANTITY);
+    gsub(/\./,",",USD);
+    #  print(USD);
+   #
+   #########################
 
 }
 
