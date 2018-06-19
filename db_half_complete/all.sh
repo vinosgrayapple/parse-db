@@ -29,8 +29,8 @@ echo $( sed 1q _parse_.awk | awk -F"\"" '{print $4}' | sed 's/ FS /\";\"/g'| awk
 for file_for_parsing in "$@"
 do
 d=$(sed 1q $file_for_parsing | awk -F"\";\"" '{tmp=$2;gsub(/ /,"_",tmp);print toupper(tmp)}')
-
-awk -v delim="$DELIM" -v type="$d" -v output="$output" -f $parse_program $file_for_parsing &
+# --posix
+awk  -v delim="$DELIM" -v type="$d" -v output="$output" -f $parse_program $file_for_parsing &
 
 PID=$!                                
 i=1                                   

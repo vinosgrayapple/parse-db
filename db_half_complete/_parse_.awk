@@ -1,4 +1,4 @@
-function printLine(TYPES){print "\""IMEXP FS INFO FS PDO_COUNTRY FS TYPES FS UKTZED FS COUNTRY_TRADE FS COUNTRY_OF_ORIGIN FS YEAR FS MONTH FS EXPORTER FS IMPORTER FS NETTO_KG FS BRUTTO_KG FS QUANTITY FS UNIT FS USD FS TM FS FACTOR_PRICE FS PRODUCER FS CUSTOMS_VALUE"\"" >> output}
+function printLine(TYPES){print "\""IMEXP FS INFO FS PDO_COUNTRY FS TYPES FS UKTZED FS COUNTRY_TRADE FS COUNTRY_OF_ORIGIN FS YEAR FS MONTH FS EXPORTER FS IMPORTER FS NETTO_KG FS BRUTTO_KG FS QUANTITY FS UNIT FS USD FS TM FS FACTOR_PRICE FS PRODUCER FS CUSTOMS_VALUE FS CURRENCY FS CURRENCY_CONTRACT"\"" >> output}
 function ltrim(s){sub(/^[ \t\r\n\.]+/, "",s);return s}
 function rtrim(s){sub(/[ \t\r\n\.)]+$/, "",s);return s}
 function trim(s){return rtrim(ltrim(s))}
@@ -9,6 +9,16 @@ function blue(s){return "\033[1;34m"s"\033[0m "}
 BEGIN {
   IGNORECASE = 1;
   FS = delim;
+
+arrCur["980"]="UAH";
+arrCur["978"]="€";
+arrCur["840"]="$";
+arrCur["554"]="NZD";
+arrCur["36"]="AUD";
+arrCur["826"]="£";
+arrCur["756"]="CHF";
+arrCur["643"]="RUB";
+
   country["EU"] = "ЄВРОПЕЙСЬКИЙ СОЮЗ (ЄС)";
   country["AF"] = "Афганістан";
   country["AL"] = "Албанія";
@@ -335,7 +345,7 @@ BEGIN {
     FACTOR_PRICE = $22;
     CUSTOMS_VALUE = $23;
     CURRENCY=$26;
-    
+    CURRENCY_CONTRACT = arrCur[$27];
 
   } else if (type == "ТИП_ВМД_НАПРАВЛЕНИЯ") {#    2016 ГОД
     IMEXP = $2;
@@ -353,10 +363,12 @@ BEGIN {
     FACTOR_PRICE = $24;
     CUSTOMS_VALUE = $25;
     CURRENCY=$29;
+    CURRENCY_CONTRACT = arrCur[$31];
+
   } else if (type == "ТИП_МД") {#    2017 ГОД
     split($2, imp, "/");
     IMEXP = imp[1];
-    INFO = $17;
+    INFO = $17" "$18;
     UKTZED = $16;
     COUNTRY_TRADE = $20;
     COUNTRY_OF_ORIGIN = $20;
@@ -548,14 +560,18 @@ BEGIN {
    gsub(/,/,".",QUANTITY)
    #    USD
    #########################
-    print "QUANTITY:" QUANTITY;
-    print "CURRENCY:" CURRENCY;
-   if (+CURRENCY != 0 && +QUANTITY != 0) {
-      USD=CUSTOMS_VALUE/CURRENCY/QUANTITY;
+    # print "QUANTITY:" QUANTITY;
+    # print "CURRENCY:" CURRENCY;
+    # $NF=sprintf ("Z%.3f", z)
+   if (CURRENCY*1 != 0 && QUANTITY*1 != 0) {
+      USD=(CUSTOMS_VALUE/CURRENCY)/QUANTITY;
    } else {
-     USD="null";
+     USD="0";
    }
-    gsub(/\./,",",CURRENCY);
+   	CURRENCY=sprintf ("%.2f", CURRENCY)
+   	USD=sprintf ("%.2f", USD)
+
+g    gsub(/\./,",",CURRENCY);
     gsub(/\./,",",QUANTITY);
     gsub(/\./,",",USD);
     #  print(USD);
