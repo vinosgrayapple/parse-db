@@ -69,6 +69,7 @@ echo -e "Использовали программу: \033[1;32m$parse_program\0
 echo -e "Получили файл: \033[1;31m$output\033[0m";
 echo -e "\033[1;35m===================================\033[0m";
 echo "DONE.";
+echo "It took $SECONDS second"
 echo
 PS3='Выберите действие: ';
 

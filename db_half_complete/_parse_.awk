@@ -1,4 +1,4 @@
-function printLine(TYPES){print "\""IMEXP FS INFO FS PDO_COUNTRY FS TYPES FS UKTZED FS COUNTRY_TRADE FS COUNTRY_OF_ORIGIN FS YEAR FS MONTH FS EXPORTER FS IMPORTER FS NETTO_KG FS BRUTTO_KG FS QUANTITY FS UNIT FS USD FS TM FS FACTOR_PRICE FS PRODUCER FS CUSTOMS_VALUE"\"" >> output}
+function printLine(TYPES){print "\""IMEXP FS INFO FS PDO_COUNTRY FS TYPES FS UKTZED FS COUNTRY_TRADE FS COUNTRY_OF_ORIGIN FS YEAR FS MONTH FS EXPORTER FS IMPORTER FS NETTO_KG FS BRUTTO_KG FS TM FS PRODUCER FS QUANTITY FS UNIT FS CUSTOMS_VALUE FS CUSTOM_IN_CURRENCY FS EXCHANGE_RATE_CONTRACT FS CURRENCY FS CURRENCIES_PER_UNIT"\""  >> output}
 function ltrim(s){sub(/^[ \t\r\n\.]+/, "",s);return s}
 function rtrim(s){sub(/[ \t\r\n\.)]+$/, "",s);return s}
 function trim(s){return rtrim(ltrim(s))}
@@ -9,6 +9,17 @@ function blue(s){return "\033[1;34m"s"\033[0m "}
 BEGIN {
   IGNORECASE = 1;
   FS = delim;
+
+  CURR["978"]="€";
+  CURR["980"]="UAH";
+  CURR["840"]="$";
+  CURR["554"]="NZD";
+  CURR["36"]="AUD";
+  CURR["826"]="£";
+  CURR["756"]="CHF";
+  CURR["643"]="RUB";
+  CURR["USD"]="$";
+
   country["EU"] = "ЄВРОПЕЙСЬКИЙ СОЮЗ (ЄС)";
   country["AF"] = "Афганістан";
   country["AL"] = "Албанія";
@@ -334,8 +345,27 @@ BEGIN {
     UNIT = $21;
     FACTOR_PRICE = $22;
     CUSTOMS_VALUE = $23;
-    CURRENCY=$26;
-    
+    CURRENCY=CURR[$27];
+    EXCHANGE_RATE_CONTRACT=$26;
+    gsub(/\,/,".",CUSTOM_IN_CURRENCY);
+    gsub(/\,/,".",EXCHANGE_RATE_CONTRACT);
+    gsub(/\,/,".",CUSTOMS_VALUE);
+    gsub(/\,/,".",QUANTITY);
+
+    gsub(/ /,"",CUSTOM_IN_CURRENCY);
+    gsub(/ /,"",EXCHANGE_RATE_CONTRACT);
+    gsub(/ /,"",CUSTOMS_VALUE);
+    gsub(/ /,"",QUANTITY);
+    if (+EXCHANGE_RATE_CONTRACT != 0) {
+    CUSTOM_IN_CURRENCY=CUSTOMS_VALUE/EXCHANGE_RATE_CONTRACT;
+    } else {
+      CUSTOM_IN_CURRENCY = "";
+    }
+    if (+QUANTITY != 0) {
+    CURRENCIES_PER_UNIT = CUSTOM_IN_CURRENCY / QUANTITY;
+    } else {
+    CURRENCIES_PER_UNIT = "";
+    }
 
   } else if (type == "ТИП_ВМД_НАПРАВЛЕНИЯ") {#    2016 ГОД
     IMEXP = $2;
@@ -352,7 +382,29 @@ BEGIN {
     UNIT = $23;
     FACTOR_PRICE = $24;
     CUSTOMS_VALUE = $25;
-    CURRENCY=$29;
+
+    CURRENCY = CURR[$31];
+    EXCHANGE_RATE_CONTRACT = $30;
+   gsub(/\,/,".",CUSTOM_IN_CURRENCY);
+    gsub(/\,/,".",EXCHANGE_RATE_CONTRACT);
+    gsub(/\,/,".",CUSTOMS_VALUE);
+    gsub(/\,/,".",QUANTITY);
+
+    gsub(/ /,"",CUSTOM_IN_CURRENCY);
+    gsub(/ /,"",EXCHANGE_RATE_CONTRACT);
+    gsub(/ /,"",CUSTOMS_VALUE);
+    gsub(/ /,"",QUANTITY);
+
+    if (+EXCHANGE_RATE_CONTRACT != 0) {
+    CUSTOM_IN_CURRENCY=CUSTOMS_VALUE/EXCHANGE_RATE_CONTRACT;
+    } else {
+      CUSTOM_IN_CURRENCY = "";
+    }
+    if (+QUANTITY != 0) {
+    CURRENCIES_PER_UNIT = CUSTOM_IN_CURRENCY / QUANTITY;
+    } else {
+    CURRENCIES_PER_UNIT = "";
+    }
   } else if (type == "ТИП_МД") {#    2017 ГОД
     split($2, imp, "/");
     IMEXP = imp[1];
@@ -369,6 +421,27 @@ BEGIN {
     UNIT = $26;
     FACTOR_PRICE = $41;
     CUSTOMS_VALUE = $29;
+    CURRENCY = CURR["USD"];
+    gsub(/\,/,".",CUSTOM_IN_CURRENCY);
+    gsub(/\,/,".",EXCHANGE_RATE_CONTRACT);
+    gsub(/\,/,".",CUSTOMS_VALUE);
+
+    gsub(/ /,"",CUSTOM_IN_CURRENCY);
+    gsub(/ /,"",EXCHANGE_RATE_CONTRACT);
+    gsub(/ /,"",CUSTOMS_VALUE);
+    gsub(/ /,"",QUANTITY);
+
+    if (+$30 != 0) {
+    EXCHANGE_RATE_CONTRACT=$29/$30;
+    } else {
+    EXCHANGE_RATE_CONTRACT="";
+    }
+    CUSTOM_IN_CURRENCY=$30;
+    if (+QUANTITY != 0) {
+    CURRENCIES_PER_UNIT = CUSTOM_IN_CURRENCY / QUANTITY;
+    } else {
+    CURRENCIES_PER_UNIT = "";
+    }
   }
 }
   ###########################################################
@@ -379,9 +452,6 @@ BEGIN {
  gsub(/\s*ТОВ\s*/,"",INFO);
  gsub(/\s*ПИ[ИК]\s*/,"",INFO);
  gsub(/Виробник.*СП\s*/,"Виробник ",INFO);
-
-
-
 
   if (COUNTRY_TRADE ~ /[A-Za-z][A-Za-z]/) {
     COUNTRY_TRADE=PDO[toupper(COUNTRY_TRADE)];
@@ -402,6 +472,7 @@ BEGIN {
  
   gsub(/\./,",",BRUTTO_KG);
   gsub(/ /,"",BRUTTO_KG);
+  
 
   split(FULL_DATE, a, ".");
   YEAR = a[3];
@@ -446,10 +517,10 @@ BEGIN {
   } else if (ukr[indx] !~/^[\s\-\: ]*$/) {
     str = ukr[indx];
   } else {
-    str = "tm_unknown";
+    str = "Неуказан";
   }
   gsub(/[\. ]+\n/, "\n", str);
-  gsub(/^Виробник$/, "tm_unknow", str);
+  gsub(/^Виробник$/, "Неуказан", str);
   gsub(/(Виробник|Акцизні|Країна|на$)/, "", str);
 
 
@@ -458,7 +529,7 @@ BEGIN {
 
 
   if (PRODUCER ~ /ирту до/){
-    PRODUCER=TM
+    PRODUCER=TM;
   }  
   ##################  PDO_COUNTRY  ###############################################################################
   # pdo_temp=PDO[UKTZED]
@@ -548,19 +619,29 @@ BEGIN {
    gsub(/,/,".",QUANTITY)
    #    USD
    #########################
-    print "QUANTITY:" QUANTITY;
-    print "CURRENCY:" CURRENCY;
+    # print "QUANTITY:" QUANTITY;
+    # print "CURRENCY:" CURRENCY;
    if (+CURRENCY != 0 && +QUANTITY != 0) {
       USD=CUSTOMS_VALUE/CURRENCY/QUANTITY;
    } else {
-     USD="null";
+     USD="";
    }
     gsub(/\./,",",CURRENCY);
     gsub(/\./,",",QUANTITY);
     gsub(/\./,",",USD);
+    gsub(/\./,",",EXCHANGE_RATE_CONTRACT);
+    gsub(/\./,",",CUSTOM_IN_CURRENCY);
+    gsub(/\./,",",CURRENCIES_PER_UNIT);
+    gsub(/\./,",",CUSTOMS_VALUE);
+    #  EXCHANGE_RATE_CONTRACT FS CURRENCY FS CUSTOM_IN_CURRENCY FS CURRENCIES_PER_UNIT
     #  print(USD);
    #
    #########################
+   if (IMPORTER == "") {
+     IMPORTER="Неуказан";
+   } else if (IMPORTER ~ /(Генеральне Консульство |EMBASSY|Посольство | Аташат)/) {
+     IMPORTER="EMBASSY";
+   }
 
 }
 
