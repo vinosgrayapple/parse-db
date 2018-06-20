@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 function printLine(TYPES){print "\""IMEXP FS INFO FS PDO_COUNTRY FS TYPES FS UKTZED FS COUNTRY_TRADE FS COUNTRY_OF_ORIGIN FS YEAR FS MONTH FS EXPORTER FS IMPORTER FS NETTO_KG FS BRUTTO_KG FS TM FS PRODUCER FS QUANTITY FS UNIT FS CUSTOMS_VALUE FS CUSTOM_IN_CURRENCY FS EXCHANGE_RATE_CONTRACT FS CURRENCY FS CURRENCIES_PER_UNIT"\""  >> output}
+=======
+function printLine(TYPES){print "\""IMEXP FS INFO FS PDO_COUNTRY FS TYPES FS UKTZED FS COUNTRY_TRADE FS COUNTRY_OF_ORIGIN FS YEAR FS MONTH FS EXPORTER FS IMPORTER FS NETTO_KG FS BRUTTO_KG FS QUANTITY FS UNIT FS USD FS TM FS FACTOR_PRICE FS PRODUCER FS CUSTOMS_VALUE FS CURRENCY FS CURRENCY_CONTRACT"\"" >> output}
+>>>>>>> a692f0fa5b8e6dcf0dacb43af3b8c99205e9d883
 function ltrim(s){sub(/^[ \t\r\n\.]+/, "",s);return s}
 function rtrim(s){sub(/[ \t\r\n\.)]+$/, "",s);return s}
 function trim(s){return rtrim(ltrim(s))}
@@ -10,6 +14,7 @@ BEGIN {
   IGNORECASE = 1;
   FS = delim;
 
+<<<<<<< HEAD
   CURR["978"]="€";
   CURR["980"]="UAH";
   CURR["840"]="$";
@@ -19,6 +24,16 @@ BEGIN {
   CURR["756"]="CHF";
   CURR["643"]="RUB";
   CURR["USD"]="$";
+=======
+arrCur["980"]="UAH";
+arrCur["978"]="€";
+arrCur["840"]="$";
+arrCur["554"]="NZD";
+arrCur["36"]="AUD";
+arrCur["826"]="£";
+arrCur["756"]="CHF";
+arrCur["643"]="RUB";
+>>>>>>> a692f0fa5b8e6dcf0dacb43af3b8c99205e9d883
 
   country["EU"] = "ЄВРОПЕЙСЬКИЙ СОЮЗ (ЄС)";
   country["AF"] = "Афганістан";
@@ -345,6 +360,7 @@ BEGIN {
     UNIT = $21;
     FACTOR_PRICE = $22;
     CUSTOMS_VALUE = $23;
+<<<<<<< HEAD
     CURRENCY=CURR[$27];
     EXCHANGE_RATE_CONTRACT=$26;
     gsub(/\,/,".",CUSTOM_IN_CURRENCY);
@@ -366,6 +382,10 @@ BEGIN {
     } else {
     CURRENCIES_PER_UNIT = "";
     }
+=======
+    CURRENCY=$26;
+    CURRENCY_CONTRACT = arrCur[$27];
+>>>>>>> a692f0fa5b8e6dcf0dacb43af3b8c99205e9d883
 
   } else if (type == "ТИП_ВМД_НАПРАВЛЕНИЯ") {#    2016 ГОД
     IMEXP = $2;
@@ -408,7 +428,7 @@ BEGIN {
   } else if (type == "ТИП_МД") {#    2017 ГОД
     split($2, imp, "/");
     IMEXP = imp[1];
-    INFO = $17;
+    INFO = $17" "$18;
     UKTZED = $16;
     COUNTRY_TRADE = $20;
     COUNTRY_OF_ORIGIN = $20;
@@ -621,12 +641,23 @@ BEGIN {
    #########################
     # print "QUANTITY:" QUANTITY;
     # print "CURRENCY:" CURRENCY;
+<<<<<<< HEAD
    if (+CURRENCY != 0 && +QUANTITY != 0) {
       USD=CUSTOMS_VALUE/CURRENCY/QUANTITY;
    } else {
      USD="";
+=======
+    # $NF=sprintf ("Z%.3f", z)
+   if (CURRENCY*1 != 0 && QUANTITY*1 != 0) {
+      USD=(CUSTOMS_VALUE/CURRENCY)/QUANTITY;
+   } else {
+     USD="0";
+>>>>>>> a692f0fa5b8e6dcf0dacb43af3b8c99205e9d883
    }
-    gsub(/\./,",",CURRENCY);
+   	CURRENCY=sprintf ("%.2f", CURRENCY)
+   	USD=sprintf ("%.2f", USD)
+
+g    gsub(/\./,",",CURRENCY);
     gsub(/\./,",",QUANTITY);
     gsub(/\./,",",USD);
     gsub(/\./,",",EXCHANGE_RATE_CONTRACT);
