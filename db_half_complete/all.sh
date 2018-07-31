@@ -8,7 +8,7 @@ function clearLastLine() {
 }
 #### VAR  ####
 parse_program=_parse_.awk
-output=all_tets.csv
+output=EXIM_16.csv
 DELIM="\";\""
 ##############
 [ $# -eq 0 ] && { echo "Используйте: $0 'files for parsing'"; exit 1; }
